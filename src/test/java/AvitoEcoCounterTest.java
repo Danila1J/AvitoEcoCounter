@@ -11,6 +11,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
@@ -24,14 +25,14 @@ public class AvitoEcoCounterTest {
     public static EcoImpactPage ecoImpactPage;
 
     @BeforeClass
-    public static void setup()  {
+    public static void setup() {
         logger.info("Начало настройки окружения для тестов");
         // Загружаем свойства из config.properties
         properties = new Properties();
         try {
             properties.load(AvitoEcoCounterTest.class.getClassLoader().getResourceAsStream("config.properties"));
         } catch (IOException e) {
-            logger.error("Не удалось загрузить файл config.properties"+e.getMessage());
+            logger.error("Не удалось загрузить файл config.properties" + e.getMessage());
         }
 
         // Инициализируем WebDriver
@@ -45,6 +46,9 @@ public class AvitoEcoCounterTest {
 
         // Неявное ожидание 10 секунд
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+        // Создание каталога для скриншотов
+        createOutputDirectory();
 
         logger.info("Настройка окружения завершена");
     }
@@ -133,5 +137,17 @@ public class AvitoEcoCounterTest {
     public static void tearDown() {
         logger.info("Закрытие браузера и завершение тестов");
         driver.quit();
+    }
+
+    private static void createOutputDirectory() {
+        File outputDir = new File("output");
+        if (!outputDir.exists()) {
+            boolean isCreated = outputDir.mkdir();
+            if (isCreated) {
+                logger.info("Каталог 'output' успешно создан.");
+            } else {
+                logger.error("Не удалось создать каталог 'output'.");
+            }
+        }
     }
 }

@@ -1,9 +1,6 @@
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -19,10 +16,6 @@ public class EcoImpactPage {
     private final WebDriver driver;
     @FindBy(xpath = "//button[contains(., 'Авторизоваться')]")
     private WebElement authButton;
-    @FindBy(xpath = "//div[contains(@class, 'desktop-impact-item')]")
-    public WebElement panelCountersEco;
-    @FindBy(xpath = "//div[contains(@class, 'desktop-impact-item')]")
-    private WebElement counterEco;
     @FindBy(xpath = "//div[contains(@class, 'desktop-impact-item')]//div[contains(@class, 'desktop-value')]/../..")
     private List<WebElement> listCountersEco;
     @FindBy(xpath = "//div[@data-marker='header/menu-profile']")
@@ -59,7 +52,7 @@ public class EcoImpactPage {
         int counterNumber = 1;
         for (WebElement counter : counters) {
             if (counter.isDisplayed()) {
-                String filename = String.format("output/test%d_counter%d.png", testNumber,counterNumber);
+                String filename = String.format("output/test%d_counter%d.png", testNumber, counterNumber);
                 takeScreenshot(counter, filename);
                 logger.info("Сохранение скриншота счетчика " + counterNumber);
             } else {
@@ -70,19 +63,14 @@ public class EcoImpactPage {
     }
 
     private void takeScreenshot(WebElement element, String filename) {
-        File screenshotFile = element.getScreenshotAs(OutputType.FILE);
-        createOutputDirectory();
         try {
+            File screenshotFile = element.getScreenshotAs(OutputType.FILE);
             ImageIO.write(ImageIO.read(screenshotFile), "PNG", new File(filename));
+            logger.info("Скриншот элемента сохранен: " + filename);
         } catch (IOException e) {
-            logger.error("Ошибка при сохранении скриншота", e);
-        }
-    }
-
-    private void createOutputDirectory() {
-        File outputDir = new File("output");
-        if (!outputDir.exists() && !outputDir.mkdir()) {
-            logger.error("Не удалось создать каталог output/");
+            logger.error("Ошибка при сохранении скриншота элемента: " + e.getMessage());
+        } catch (WebDriverException e) {
+            logger.error("Проблема с WebDriver при попытке получить скриншот: " + e.getMessage());
         }
     }
 
@@ -94,6 +82,7 @@ public class EcoImpactPage {
     public boolean isMenuProfileDisplayed() {
         return menuProfile.isDisplayed();
     }
+
     public List<WebElement> getListCountersEco() {
         return listCountersEco;
     }
